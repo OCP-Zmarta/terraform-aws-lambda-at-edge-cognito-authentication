@@ -99,6 +99,8 @@ variable "cognito_redirect_path" {
 variable "cognito_additional_settings" {
   description = "Map of any to configure any additional cognito@edge parameters not handled by this module."
   type        = any
-  default     = {}
+  default = {
+    cookiePath = "/"
+  }
 }
 
