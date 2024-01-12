@@ -1,5 +1,5 @@
 diff --git a/node_modules/cognito-at-edge/dist/index.js b/node_modules/cognito-at-edge/dist/index.js
-index 10d5d9b..45d6c78 100644
+index 10d5d9b..2e8f1f7 100644
 --- a/node_modules/cognito-at-edge/dist/index.js
 +++ b/node_modules/cognito-at-edge/dist/index.js
 @@ -26,6 +26,7 @@ class Authenticator {
@@ -18,30 +18,21 @@ index 10d5d9b..45d6c78 100644
      }
      /**
       * Verify that constructor parameters are corrects.
+@@ -223,7 +225,7 @@ class Authenticator {
+      * @param  {String} location Path to redirection.
+      * @return Lambda@Edge response.
+      */
+-    async _getRedirectResponse(tokens, domain, location) {
++    async _getRedirectResponse(tokens, domain, location, keepMethod = false) {
+         const decoded = await this._jwtVerifier.verify(tokens.idToken);
+         const username = decoded['cognito:username'];
+         const usernameBase = `${this._cookieBase}.${username}`;
 @@ -251,7 +253,7 @@ class Authenticator {
              cookies.push(cookie_1.Cookies.serialize(`${this._cookieBase}.${csrf_1.PKCE_COOKIE_NAME_SUFFIX}`, '', csrfCookieAttributes), cookie_1.Cookies.serialize(`${this._cookieBase}.${csrf_1.NONCE_COOKIE_NAME_SUFFIX}`, '', csrfCookieAttributes), cookie_1.Cookies.serialize(`${this._cookieBase}.${csrf_1.NONCE_HMAC_COOKIE_NAME_SUFFIX}`, '', csrfCookieAttributes));
          }
          const response = {
 -            status: '302',
-+            status: '307',
-             headers: {
-                 'location': [{
-                         key: 'Location',
-@@ -415,7 +417,7 @@ class Authenticator {
-             }
-         }
-         const response = {
--            status: '302',
-+            status: '307',
-             headers: {
-                 'location': [{
-                         key: 'Location',
-@@ -475,7 +477,7 @@ class Authenticator {
-             ];
-         }
-         const response = {
--            status: '302',
-+            status: '307',
++            status: keepMethod ? '307' : '302',
              headers: {
                  'location': [{
                          key: 'Location',
@@ -55,12 +46,12 @@ index 10d5d9b..45d6c78 100644
          try {
              const tokens = this._getTokensFromCookie(request.headers.cookie);
              if (this._logoutConfiguration && request.uri.startsWith(this._logoutConfiguration.logoutUri)) {
-@@ -572,7 +575,7 @@ class Authenticator {
-             const user = await this._jwtVerifier.verify(tokens.idToken);
-             this._logger.info({ msg: 'Redirecting user to', path: redirectURI, user });
-             return {
--                status: '302',
-+                status: '307',
-                 headers: {
-                     'location': [{
-                             key: 'Location',
+@@ -530,7 +533,7 @@ class Authenticator {
+                 if (tokens.refreshToken) {
+                     this._logger.debug({ msg: 'Verifying idToken failed, verifying refresh token instead...', tokens, err });
+                     return await this._fetchTokensFromRefreshToken(redirectURI, tokens.refreshToken)
+-                        .then(tokens => this._getRedirectResponse(tokens, cfDomain, request.uri));
++                        .then(tokens => this._getRedirectResponse(tokens, cfDomain, request.uri, true));
+                 }
+                 else {
+                     throw err;
