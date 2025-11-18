@@ -40,9 +40,9 @@ variable "lambda_timeout" {
 }
 
 variable "lambda_config_mode" {
-  description = "Which strategy to use to supply config to the lambda function, defaults to 'dynamic'."
+  description = "Which strategy to use to supply config to the lambda function, defaults to 'static'."
   type        = string
-  default     = "dynamic"
+  default     = "static"
   validation {
     condition     = contains(["dynamic", "hybrid", "static"], var.lambda_config_mode)
     error_message = "Input var.lambda_config_mode must be one of \"dynamic\", \"hybrid\", \"static\"."
@@ -50,9 +50,9 @@ variable "lambda_config_mode" {
 }
 
 variable "lambda_config_allow_insecure_secret_storage" {
-  description = "Allow secrets to be stored in the lambda config file, defaults to false."
+  description = "Allow secrets to be stored in the lambda config file, defaults to true."
   type        = bool
-  default     = false
+  default     = true
 }
 
 # ================================================================================================================
@@ -120,6 +120,53 @@ variable "cognito_redirect_path" {
   description = "Optional path to redirect to after a successful cognito login."
   type        = string
   default     = ""
+}
+
+variable "cognito_http_only" {
+  description = "Sets HttpOnly flag on cookies to prevent JavaScript access (recommended for security). Note: If true, cookies won't be accessible to AWS Amplify client-side."
+  type        = bool
+  default     = true
+}
+
+variable "cognito_same_site" {
+  description = "Sets SameSite attribute for cookies. Options: 'Strict', 'Lax', or 'None'. 'Lax' is recommended for most use cases."
+  type        = string
+  default     = "Lax"
+
+  validation {
+    condition     = contains(["Strict", "Lax", "None"], var.cognito_same_site)
+    error_message = "cognito_same_site must be one of: 'Strict', 'Lax', or 'None'."
+  }
+}
+
+variable "cognito_cookie_path" {
+  description = "Sets Path attribute for cookies. Defaults to '/' to make authentication cookies available site-wide. Use a specific path like '/app' to restrict cookies to that path only."
+  type        = string
+  default     = "/"
+}
+
+variable "cognito_csrf_protection_enabled" {
+  description = "Enable CSRF protection. Highly recommended for production environments."
+  type        = bool
+  default     = true
+}
+
+variable "cognito_refresh_token_expiration_days" {
+  description = "Number of days for refresh token cookie expiration. Should match Cognito User Pool refresh token validity."
+  type        = number
+  default     = 7
+}
+
+variable "cognito_access_token_expiration_days" {
+  description = "Number of days for access token cookie expiration. Should match Cognito User Pool access token validity. Use fractional days for hours (e.g., 0.041666666 for 60 minutes)."
+  type        = number
+  default     = 0.041666666 # 60 minutes
+}
+
+variable "cognito_id_token_expiration_days" {
+  description = "Number of days for ID token cookie expiration. Should match Cognito User Pool ID token validity. Use fractional days for hours (e.g., 0.041666666 for 60 minutes)."
+  type        = number
+  default     = 0.041666666 # 60 minutes
 }
 
 variable "cognito_additional_settings" {
