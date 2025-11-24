@@ -1,5 +1,5 @@
 diff --git a/node_modules/cognito-at-edge/dist/index.js b/node_modules/cognito-at-edge/dist/index.js
-index 8a3d2da..a8456f6 100644
+index 8a3d2da..96acb72 100644
 --- a/node_modules/cognito-at-edge/dist/index.js
 +++ b/node_modules/cognito-at-edge/dist/index.js
 @@ -26,6 +26,7 @@ class Authenticator {
@@ -50,7 +50,7 @@ index 8a3d2da..a8456f6 100644
                          err,
                      });
 -                    return await this._fetchTokensFromRefreshToken(redirectURI, tokens.refreshToken).then((tokens) => this._getRedirectResponse(tokens, cfDomain, request.uri));
-+                    return await this._fetchTokensFromRefreshToken(redirectURI, tokens.refreshToken).then((tokens) => this._getRedirectResponse(tokens, cfDomain, request.uri, true));
++                    return await this._fetchTokensFromRefreshToken(redirectURI, tokens.refreshToken).then((newTokens) => this._getRedirectResponse({ ...newTokens, refreshToken: tokens.refreshToken }, cfDomain, request.uri, true));
                  }
                  else {
                      throw err;
